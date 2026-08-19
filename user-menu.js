@@ -20,10 +20,26 @@
     driver: 'Motorista'
   }[role] || role || 'Usuário');
 
-  function currentUser() {
+  function userFromStorage() {
     const db = read(DB_KEY, { users: [] });
     const id = localStorage.getItem(SESSION_KEY);
     return db.users?.find(user => user.id === id && user.active) || null;
+  }
+
+  function userFromSidebar() {
+    const box = document.querySelector('.sidebar-user');
+    if (!box) return null;
+    const name = box.querySelector('strong')?.textContent?.trim() || '';
+    const username = (box.querySelector('span')?.textContent || '').trim().replace(/^@/, '');
+    const rawRole = box.querySelector('small')?.textContent?.trim() || 'Usuário';
+    if (!name && !username) return null;
+    const normalized = rawRole.toLowerCase();
+    const role = normalized.includes('admin') ? 'admin' : normalized.includes('super') ? 'supervisor' : normalized.includes('motor') ? 'driver' : rawRole;
+    return { name: name || username || 'Usuário', username, role, active: true };
+  }
+
+  function currentUser() {
+    return userFromStorage() || userFromSidebar();
   }
 
   function logout() {
@@ -33,6 +49,15 @@
     }
     localStorage.removeItem(SESSION_KEY);
     location.reload();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
   function closeMenus(except = null) {
@@ -66,7 +91,7 @@
           <span class="tm-user-avatar tm-user-avatar-large" aria-hidden="true">${escapeHtml(initial)}</span>
           <div>
             <strong>${escapeHtml(name)}</strong>
-            <span>@${escapeHtml(user.username || '')}</span>
+            <span>${user.username ? '@' + escapeHtml(user.username) : ''}</span>
           </div>
         </div>
         <div class="tm-user-role">${escapeHtml(role)}</div>
@@ -94,24 +119,15 @@
     return wrap;
   }
 
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
-
   function enhance() {
-    const user = currentUser();
     const topbar = document.querySelector('.topbar');
-    if (!user || !topbar) return;
+    if (!topbar) return;
+
+    const user = currentUser();
+    if (!user) return;
 
     const sidebarUser = document.querySelector('.sidebar-user');
     if (sidebarUser) sidebarUser.setAttribute('aria-hidden', 'true');
-
-    if (topbar.querySelector('[data-tm-user-menu]')) return;
 
     let right = topbar.querySelector('.tm-topbar-right');
     if (!right) {
@@ -122,12 +138,14 @@
       topbar.appendChild(right);
     }
 
-    right.appendChild(buildUserMenu(user));
+    if (!right.querySelector('[data-tm-user-menu]')) {
+      right.appendChild(buildUserMenu(user));
+    }
   }
 
   function schedule() {
     clearTimeout(timer);
-    timer = setTimeout(enhance, 30);
+    timer = setTimeout(enhance, 20);
   }
 
   document.addEventListener('click', event => {
@@ -143,6 +161,12 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule);
   else schedule();
+
+  const retry = setInterval(() => {
+    if (!document.body) return;
+    enhance();
+  }, 350);
+  setTimeout(() => clearInterval(retry), 12000);
 
   window.TMUserMenu = { refresh: enhance };
 })();
