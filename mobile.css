@@ -1,0 +1,116 @@
+@media (max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+  body.mobile-menu-open{overflow:hidden}
+  button,input,select{font-size:16px}
+  button{min-height:44px}
+
+  .app-shell,.app-shell.sidebar-collapsed{display:block!important;min-height:100vh}
+  .app-shell>main{width:100%;min-width:0}
+
+  .sidebar,.sidebar.is-collapsed{
+    position:fixed!important;top:0!important;left:0!important;bottom:0!important;
+    width:min(86vw,330px)!important;height:100dvh!important;min-height:100dvh!important;
+    padding:16px 14px!important;z-index:1200!important;overflow:hidden!important;
+    transform:translateX(-105%);transition:transform .22s ease!important;
+    box-shadow:0 0 34px rgba(0,0,0,.28)
+  }
+  .sidebar.mobile-open,.sidebar.is-collapsed.mobile-open{transform:translateX(0)}
+  .sidebar .brand,.sidebar.is-collapsed .brand{justify-content:flex-start!important;margin:0 2px 18px!important;min-height:46px}
+  .sidebar.is-collapsed .brand>div:last-of-type:not(.brand-mark){display:flex!important}
+  .sidebar .brand-mark,.sidebar.is-collapsed .brand-mark{width:42px!important;height:42px!important;min-width:42px!important}
+  .sidebar-toggle{display:none!important}
+  .mobile-drawer-close{display:grid!important;place-items:center!important;margin-left:auto!important;width:38px!important;height:38px!important;min-width:38px!important;padding:0!important;border-radius:10px!important;background:#174b3e!important;border:1px solid #2d6c5a!important;color:#fff!important;font-size:26px!important;line-height:1!important}
+  .sidebar nav,.sidebar.is-collapsed nav{display:flex!important;flex-direction:column!important;overflow-y:auto!important;overflow-x:hidden!important;max-height:calc(100dvh - 175px)!important;padding:0 2px 12px 0!important}
+  .sidebar .nav-group,.sidebar.is-collapsed .nav-group{display:block!important;margin-bottom:10px!important}
+  .sidebar .nav-group-header,.sidebar.is-collapsed .nav-group-header{display:flex!important;padding:10px 10px 7px!important}
+  .sidebar .nav-group-items,.sidebar.is-collapsed .nav-group-items{display:flex!important;flex-direction:column!important;gap:5px!important}
+  .sidebar .nav-group.is-group-collapsed .nav-group-items,.sidebar.is-collapsed .nav-group.is-group-collapsed .nav-group-items{display:none!important}
+  .sidebar nav button[data-page],.sidebar.is-collapsed nav button[data-page]{justify-content:flex-start!important;padding:12px 12px!important;min-height:46px!important}
+  .sidebar .nav-label,.sidebar.is-collapsed .nav-label{display:inline!important;white-space:normal!important}
+  .sidebar .nav-icon,.sidebar.is-collapsed .nav-icon{background:rgba(255,255,255,.08)!important;font-size:14px!important}
+  .sidebar-user,.sidebar.is-collapsed .sidebar-user{display:flex!important;padding:14px 4px 0!important}
+  .sidebar.is-collapsed .sidebar-user>small,.sidebar.is-collapsed .sidebar-user>strong,.sidebar.is-collapsed .sidebar-user>span,.sidebar.is-collapsed .sidebar-user>button{display:block!important}
+  .sidebar-user-mini,.sidebar.is-collapsed .sidebar-user-mini{display:none!important}
+
+  .mobile-menu-overlay{position:fixed;inset:0;background:rgba(7,25,20,.48);z-index:1100;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease;backdrop-filter:blur(1px)}
+  .mobile-menu-overlay.is-visible{opacity:1;visibility:visible}
+
+  .topbar{position:sticky;top:0;z-index:900;height:64px;padding:0 12px!important;gap:10px;box-shadow:0 2px 10px rgba(18,61,49,.05)}
+  .mobile-menu-button{display:grid!important;place-items:center!important;width:42px;height:42px;min-width:42px;padding:0!important;border-radius:11px;background:#103d31!important;color:white!important;border-color:#103d31!important;font-size:21px}
+  .topbar>div:first-of-type{min-width:0;flex:1}
+  .topbar h1{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar>div:first-of-type>span{display:none}
+  .status-dot{font-size:11px;white-space:nowrap}
+
+  .content{padding:12px!important}
+  .cards,.finance-cards{grid-template-columns:1fr!important;gap:10px!important;margin-bottom:12px!important}
+  .card{padding:15px!important}
+  .card strong{font-size:27px!important}
+  .panel{padding:14px!important;border-radius:13px!important}
+  .grid2,.map-layout,.calc-layout{grid-template-columns:1fr!important;gap:12px!important}
+
+  .panel-head,.finance-head{align-items:stretch!important;flex-direction:column!important;gap:10px!important}
+  .panel-head .search,.search{max-width:none!important;width:100%!important}
+  .inline-form,.finance-form,.calc-grid{grid-template-columns:1fr!important;gap:10px!important;padding:12px!important}
+  .inline-form input,.inline-form select,.finance-form input,.finance-form select,.calc-grid input,.calc-grid select,.search{min-height:46px!important}
+  .inline-form button,.finance-form button{width:100%}
+  .quick{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+  .quick button{width:100%;min-height:48px}
+
+  .route-row{grid-template-columns:1fr auto!important;gap:8px 12px!important;padding:13px 0!important}
+  .route-row .progress{grid-column:1/-1;grid-row:2}
+  .route-row>b{grid-column:2;grid-row:1;align-self:center}
+
+  .table-wrap{overflow:visible!important;margin:0!important}
+  .mobile-card-table{display:block!important;width:100%!important;border-collapse:separate!important}
+  .mobile-card-table thead{display:none!important}
+  .mobile-card-table tbody{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+  .mobile-card-table tbody tr{display:block!important;background:#fff;border:1px solid #e1e8e4;border-radius:12px;padding:5px 12px;box-shadow:0 2px 8px rgba(18,61,49,.035)}
+  .mobile-card-table tbody td{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:14px!important;white-space:normal!important;text-align:right!important;padding:10px 0!important;border-bottom:1px solid #edf1ef!important;min-height:38px}
+  .mobile-card-table tbody td:last-child{border-bottom:0!important;flex-wrap:wrap!important;justify-content:flex-end!important}
+  .mobile-card-table tbody td::before{content:attr(data-label);font-size:11px;font-weight:700;color:#697872;text-align:left;flex:0 0 42%;max-width:42%}
+  .mobile-card-table tbody td button{min-height:38px;padding:8px 10px;font-size:13px}
+
+  .finance-head .month-filter{width:100%}
+  .month-filter input{width:100%;min-height:44px}
+  .finance-tabs{margin:0 -14px 14px!important;padding:0 14px 6px!important;display:flex!important;overflow-x:auto!important;scroll-snap-type:x proximity;scrollbar-width:none}
+  .finance-tabs::-webkit-scrollbar{display:none}
+  .finance-tabs button{min-height:42px!important;scroll-snap-align:start}
+  .finance-kpis,.price-breakdown{grid-template-columns:1fr!important}
+  .dre-wrap{max-width:none!important;overflow-x:auto}
+  .dre-table{min-width:520px}
+  .result-panel{position:static!important}
+  .price-main strong{font-size:28px!important}
+
+  .map-layout{display:flex!important;flex-direction:column!important}
+  .vehicle-list{max-height:210px!important;overflow:auto!important;order:2}
+  .map-panel{order:1;padding:0!important}
+  .map{height:52vh!important;min-height:360px!important;max-height:560px!important}
+  .map-note{font-size:11px;line-height:1.4}
+
+  .driver-wrap{max-width:none!important}
+  .driver-hero{padding:18px!important;align-items:flex-start!important;flex-direction:column!important;gap:12px!important;margin-bottom:12px!important}
+  .driver-hero h2{font-size:28px!important}
+  .driver-actions{grid-template-columns:1fr 1fr!important;gap:9px!important;margin-bottom:12px!important}
+  .driver-actions button{min-height:60px!important;padding:10px!important;font-size:13px;font-weight:700}
+  .timeline div{font-size:12px;line-height:1.45}
+
+  .login-page{padding:14px;min-height:100dvh}
+  .login-card{width:100%!important;max-width:430px!important;padding:24px 20px!important;border-radius:17px!important}
+  .login-card input{min-height:48px}
+  .login-card form button{min-height:50px}
+
+  .empty{padding:38px 14px!important}
+}
+
+@media (max-width:430px){
+  .quick{grid-template-columns:1fr!important}
+  .driver-actions{grid-template-columns:1fr!important}
+  .status-dot{font-size:0}
+  .status-dot::after{content:'●';font-size:16px;color:#198754}
+  .mobile-card-table tbody td::before{flex-basis:38%;max-width:38%}
+}
+
+@media (min-width:761px){
+  .mobile-menu-button,.mobile-drawer-close,.mobile-menu-overlay{display:none!important}
+}
