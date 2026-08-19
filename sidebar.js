@@ -2,6 +2,8 @@
   'use strict';
 
   const STORAGE_KEY = 'telemonte-sidebar-collapsed';
+  const GROUP_STORAGE_KEY = 'telemonte-sidebar-groups-v1';
+
   const ICONS = {
     'Dashboard': '▦',
     'Mapa / Rastreamento': '⌖',
@@ -19,8 +21,48 @@
     'Histórico': '◷'
   };
 
+  const GROUPS = [
+    {
+      key: 'operacao',
+      label: 'OPERAÇÃO',
+      items: ['Dashboard', 'Mapa / Rastreamento', 'Rotas', 'Área do Motorista', 'Minha Rota', 'Ocorrências']
+    },
+    {
+      key: 'cadastros',
+      label: 'CADASTROS',
+      items: ['Clientes', 'Funcionários', 'Caminhões', 'Caçambas']
+    },
+    {
+      key: 'financeiro',
+      label: 'FINANCEIRO',
+      items: ['Financeiro']
+    },
+    {
+      key: 'administracao',
+      label: 'ADMINISTRAÇÃO',
+      items: ['Importar / Exportar', 'Usuários e Permissões']
+    },
+    {
+      key: 'registros',
+      label: 'REGISTROS',
+      items: ['Histórico']
+    }
+  ];
+
   function isCollapsed() {
     return localStorage.getItem(STORAGE_KEY) === '1';
+  }
+
+  function readGroupState() {
+    try {
+      return JSON.parse(localStorage.getItem(GROUP_STORAGE_KEY) || '{}') || {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveGroupState(state) {
+    localStorage.setItem(GROUP_STORAGE_KEY, JSON.stringify(state));
   }
 
   function applyState(sidebar, shell, collapsed) {
@@ -36,6 +78,94 @@
     }
   }
 
+  function decorateButton(button) {
+    if (button.dataset.iconReady === '1') return;
+    const label = button.textContent.trim();
+    button.dataset.iconReady = '1';
+    button.dataset.menuLabel = label;
+    button.title = label;
+    button.innerHTML = `<span class="nav-icon" aria-hidden="true">${ICONS[label] || '•'}</span><span class="nav-label">${label}</span>`;
+  }
+
+  function buildGroups(nav) {
+    if (!nav || nav.dataset.groupedReady === '1') return;
+
+    const originalButtons = Array.from(nav.querySelectorAll(':scope > button[data-page]'));
+    if (!originalButtons.length) return;
+
+    originalButtons.forEach(decorateButton);
+
+    const byLabel = new Map(
+      originalButtons.map(button => [button.dataset.menuLabel || button.textContent.trim(), button])
+    );
+
+    const fragment = document.createDocumentFragment();
+    const used = new Set();
+    const savedState = readGroupState();
+
+    GROUPS.forEach(groupDef => {
+      const buttons = groupDef.items.map(label => byLabel.get(label)).filter(Boolean);
+      if (!buttons.length) return;
+
+      const group = document.createElement('div');
+      group.className = 'nav-group';
+      group.dataset.group = groupDef.key;
+
+      const hasActive = buttons.some(button => button.classList.contains('active'));
+      const groupCollapsed = hasActive ? false : savedState[groupDef.key] === true;
+      group.classList.toggle('is-group-collapsed', groupCollapsed);
+
+      if (hasActive && savedState[groupDef.key] === true) {
+        savedState[groupDef.key] = false;
+        saveGroupState(savedState);
+      }
+
+      const header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'nav-group-header';
+      header.setAttribute('aria-expanded', String(!groupCollapsed));
+      header.innerHTML = `<span class="nav-group-title">${groupDef.label}</span><span class="nav-group-chevron" aria-hidden="true">⌄</span>`;
+      header.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const willCollapse = !group.classList.contains('is-group-collapsed');
+        group.classList.toggle('is-group-collapsed', willCollapse);
+        header.setAttribute('aria-expanded', String(!willCollapse));
+
+        const state = readGroupState();
+        state[groupDef.key] = willCollapse;
+        saveGroupState(state);
+      });
+
+      const items = document.createElement('div');
+      items.className = 'nav-group-items';
+      buttons.forEach(button => {
+        used.add(button);
+        items.appendChild(button);
+      });
+
+      group.appendChild(header);
+      group.appendChild(items);
+      fragment.appendChild(group);
+    });
+
+    const leftovers = originalButtons.filter(button => !used.has(button));
+    if (leftovers.length) {
+      const group = document.createElement('div');
+      group.className = 'nav-group nav-group-ungrouped';
+      const items = document.createElement('div');
+      items.className = 'nav-group-items';
+      leftovers.forEach(button => items.appendChild(button));
+      group.appendChild(items);
+      fragment.appendChild(group);
+    }
+
+    nav.innerHTML = '';
+    nav.appendChild(fragment);
+    nav.dataset.groupedReady = '1';
+  }
+
   function enhanceSidebar() {
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar || sidebar.dataset.collapsibleReady === '1') return;
@@ -49,7 +179,7 @@
       toggle.type = 'button';
       toggle.className = 'sidebar-toggle';
       toggle.innerHTML = '<span class="toggle-icon">‹</span>';
-      toggle.addEventListener('click', (event) => {
+      toggle.addEventListener('click', event => {
         event.preventDefault();
         event.stopPropagation();
         const collapsed = !sidebar.classList.contains('is-collapsed');
@@ -59,13 +189,7 @@
       brand.appendChild(toggle);
     }
 
-    sidebar.querySelectorAll('nav button').forEach((button) => {
-      if (button.dataset.iconReady === '1') return;
-      const label = button.textContent.trim();
-      button.dataset.iconReady = '1';
-      button.title = label;
-      button.innerHTML = `<span class="nav-icon" aria-hidden="true">${ICONS[label] || '•'}</span><span class="nav-label">${label}</span>`;
-    });
+    buildGroups(sidebar.querySelector('nav'));
 
     const user = sidebar.querySelector('.sidebar-user');
     if (user && !user.querySelector('.sidebar-user-mini')) {
