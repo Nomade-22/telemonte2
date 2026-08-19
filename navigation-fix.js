@@ -55,11 +55,11 @@
     return group;
   }
 
-  function buttonExists(nav, key) {
-    return !!nav.querySelector(`[data-nav-fix="${key}"]`);
+  function findByLabel(nav, label) {
+    return Array.from(nav.querySelectorAll('button')).find(button => button.textContent.trim() === label) || null;
   }
 
-  function makeButton(key, label, icon, onClick) {
+  function makeActionButton(key, label, icon, onClick) {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.navFix = key;
@@ -76,24 +76,28 @@
     return button;
   }
 
-  function ensureButton(nav, group, key, label, icon, onClick) {
-    if (buttonExists(nav, key)) return;
-    const existing = Array.from(nav.querySelectorAll('button')).find(button => button.textContent.trim() === label);
-    if (existing) {
-      existing.dataset.navFix = key;
+  function ensureNativeModuleButton(nav, group, key, label, icon, moduleView) {
+    let button = nav.querySelector(`[data-ops-module="${moduleView}"]`) || findByLabel(nav, label);
+    if (button) {
+      button.dataset.navFix = key;
       return;
     }
-    group.querySelector('.nav-group-items')?.appendChild(makeButton(key, label, icon, onClick));
+    button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.navFix = key;
+    button.dataset.opsModule = moduleView;
+    button.title = label;
+    button.innerHTML = `<span class="nav-icon" aria-hidden="true">${icon}</span><span class="nav-label">${label}</span>`;
+    group.querySelector('.nav-group-items')?.appendChild(button);
   }
 
-  function openOrders(view) {
-    if (window.TMOrdersPoints?.render) {
-      window.TMOrdersPoints.render(view);
+  function ensureActionButton(nav, group, key, label, icon, onClick) {
+    let button = nav.querySelector(`[data-nav-fix="${key}"]`) || findByLabel(nav, label);
+    if (button) {
+      button.dataset.navFix = key;
       return;
     }
-    const native = Array.from(document.querySelectorAll('.sidebar nav button')).find(b => b.textContent.trim() === (view === 'orders' ? 'Ordens de Coleta' : 'Pontos de Coleta'));
-    if (native && !native.dataset.navFix) native.click();
-    else alert('O módulo de Ordens/Pontos ainda está carregando. Atualize a página e tente novamente.');
+    group.querySelector('.nav-group-items')?.appendChild(makeActionButton(key, label, icon, onClick));
   }
 
   function openDestination() {
@@ -117,10 +121,10 @@
     const cadastros = ensureGroup(nav, 'cadastros', 'CADASTROS');
     const residuos = ensureGroup(nav, 'residuos', 'RESÍDUOS', 'financeiro');
 
-    ensureButton(nav, operation, 'orders', 'Ordens de Coleta', '☑', () => openOrders('orders'));
-    ensureButton(nav, cadastros, 'points', 'Pontos de Coleta', '⌂', () => openOrders('points'));
-    ensureButton(nav, residuos, 'destination', 'Destinação / Pesagem', '⚖', openDestination);
-    ensureButton(nav, residuos, 'environmental', 'Documentação Ambiental', '▤', openEnvironmental);
+    ensureNativeModuleButton(nav, operation, 'orders', 'Ordens de Coleta', '☑', 'orders');
+    ensureNativeModuleButton(nav, cadastros, 'points', 'Pontos de Coleta', '⌂', 'points');
+    ensureActionButton(nav, residuos, 'destination', 'Destinação / Pesagem', '⚖', openDestination);
+    ensureActionButton(nav, residuos, 'environmental', 'Documentação Ambiental', '▤', openEnvironmental);
   }
 
   function schedule() {
